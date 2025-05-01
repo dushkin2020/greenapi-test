@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GREEN API Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      padding: 20px;
+    }
+    .left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-right: 20px;
+    }
+    .right {
+      flex: 2;
+    }
+    input, textarea, button {
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      background-color: #e4e4e9;
+      border: 1px solid #ccc;
+      cursor: pointer;
+    }
+    textarea {
+      width: 100%;
+      height: 500px;
+      resize: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="left">
+    <input id="idInstance" placeholder="idInstance" />
+    <input id="apiTokenInstance" placeholder="ApiTokenInstance" />
+
+    <button onclick="callApi('getSettings')">getSettings</button>
+    <button onclick="callApi('getStateInstance')">getStateInstance</button>
+
+    <input id="phoneMessage" placeholder="79001234567" />
+    <input id="messageText" placeholder="hello world" />
+    <button onclick="sendMessage()">sendMessage</button>
+
+    <input id="phoneFile" placeholder="77771234567" />
+    <input id="fileUrl" placeholder="https://site.com/image.png" />
+    <button onclick="sendFileByUrl()">sendFileByUrl</button>
+  </div>
+  <div class="right">
+    <div><strong>Ответ:</strong></div>
+    <textarea id="response" readonly></textarea>
+  </div>
+
+  <script>
+    const apiHost = "https://api.green-api.com";
+
+    function setResponse(data) {
+      document.getElementById('response').value = JSON.stringify(data, null, 2);
+    }
+
+    function getCredentials() {
+      const id = document.getElementById('idInstance').value;
+      const token = document.getElementById('apiTokenInstance').value;
+      return { id, token };
+    }
+
+    async function callApi(method) {
+      const { id, token } = getCredentials();
+      try {
+        const res = await fetch(`${apiHost}/waInstance${id}/${method}/${token}`);
+        const data = await res.json();
+        setResponse(data);
+      } catch (err) {
+        setResponse({ error: err.message });
+      }
+    }
+
+    async function sendMessage() {
+      const { id, token } = getCredentials();
+      const phone = document.getElementById('phoneMessage').value;
+      const message = document.getElementById('messageText').value;
+      try {
+        const res = await fetch(`${apiHost}/waInstance${id}/sendMessage/${token}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chatId: `${phone}@c.us`,
+            message
+          })
+        });
+        const data = await res.json();
+        setResponse(data);
+      } catch (err) {
+        setResponse({ error: err.message });
+      }
+    }
+
+    async function sendFileByUrl() {
+      const { id, token } = getCredentials();
+      const phone = document.getElementById('phoneFile').value;
+      const url = document.getElementById('fileUrl').value;
+      try {
+        const res = await fetch(`${apiHost}/waInstance${id}/sendFileByUrl/${token}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            chatId: `${phone}@c.us`,
+            urlFile: url,
+            fileName: url.split('/').pop()
+          })
+        });
+        const data = await res.json();
+        setResponse(data);
+      } catch (err) {
+        setResponse({ error: err.message });
+      }
+    }
+  </script>
+</body>
+</html>
+
