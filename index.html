@@ -38,38 +38,46 @@
 </head>
 <body>
   <div class="left">
+    <!-- Ввод данных подключения -->
     <input id="idInstance" placeholder="idInstance" />
     <input id="apiTokenInstance" placeholder="ApiTokenInstance" />
 
-    <button onclick="callApi('getSettings')">getSettings</button>
-    <button onclick="callApi('getStateInstance')">getStateInstance</button>
+    <!-- Кнопки вызова методов GREEN-API -->
+    <button onclick="callApi('getSettings')">getSettings</button> <!-- Метод getSettings — получить настройки инстанса -->
+    <button onclick="callApi('getStateInstance')">getStateInstance</button> <!-- Метод getStateInstance — получить статус (в сети / нет) -->
 
+    <!-- Отправка текстового сообщения -->
     <input id="phoneMessage" placeholder="79001234567" />
     <input id="messageText" placeholder="hello world" />
-    <button onclick="sendMessage()">sendMessage</button>
+    <button onclick="sendMessage()">sendMessage</button> <!-- Метод sendMessage — отправить текстовое сообщение -->
 
-    <input id="phoneFile" placeholder="77771234567" />
+    <!-- Отправка файла по ссылке -->
+    <input id="phoneFile" placeholder="79001234567" />
     <input id="fileUrl" placeholder="https://site.com/image.png" />
-    <button onclick="sendFileByUrl()">sendFileByUrl</button>
+    <button onclick="sendFileByUrl()">sendFileByUrl</button> <!-- Метод sendFileByUrl — отправить файл по URL -->
   </div>
+
   <div class="right">
     <div><strong>Ответ:</strong></div>
-    <textarea id="response" readonly></textarea>
+    <textarea id="response" readonly></textarea> <!-- Отображение ответа от API -->
   </div>
 
   <script>
     const apiHost = "https://api.green-api.com";
 
+    // Отображение ответа в поле
     function setResponse(data) {
       document.getElementById('response').value = JSON.stringify(data, null, 2);
     }
 
+    // Получение idInstance и apiTokenInstance
     function getCredentials() {
       const id = document.getElementById('idInstance').value.trim();
       const token = document.getElementById('apiTokenInstance').value.trim();
       return { id, token };
     }
 
+    // Безопасный fetch с проверкой JSON
     async function fetchJsonSafe(url, options = {}) {
       try {
         const res = await fetch(url, options);
@@ -86,6 +94,7 @@
       }
     }
 
+    // Вызов методов getSettings и getStateInstance
     async function callApi(method) {
       const { id, token } = getCredentials();
       const url = `${apiHost}/waInstance${id}/${method}/${token}`;
@@ -93,6 +102,7 @@
       setResponse(data);
     }
 
+    // Метод sendMessage — отправить сообщение
     async function sendMessage() {
       const { id, token } = getCredentials();
       const phone = document.getElementById('phoneMessage').value.trim();
@@ -114,11 +124,12 @@
       setResponse(data);
     }
 
+    // Метод sendFileByUrl — отправка файла по ссылке
     async function sendFileByUrl() {
       const { id, token } = getCredentials();
       const phone = document.getElementById('phoneFile').value.trim();
       const urlFile = document.getElementById('fileUrl').value.trim();
-      const fileName = urlFile.split("/").pop();
+      const fileName = urlFile.split("/").pop(); // Извлекаем имя файла из URL
 
       const url = `${apiHost}/waInstance${id}/sendFileByUrl/${token}`;
       const body = {
@@ -139,4 +150,3 @@
   </script>
 </body>
 </html>
-
